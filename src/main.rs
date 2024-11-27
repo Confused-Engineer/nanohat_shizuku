@@ -48,9 +48,11 @@ impl NanoPi
 
                     if self.screen_refresh_required
                     {
-                        if let Ok(_) = self.screen.put_string("Start: \n k1: adb, k3: shutdown")
+                        if let (Ok(_), Ok(_)) = (self.screen.put_string("Start:"), self.screen.put_string("k1: adb, k3: shutdown"))
                         {
                             self.screen_refresh_required = false;
+                        } else {
+                            let _ = self.screen.clear_display();
                         }
                     }
                     
@@ -102,7 +104,7 @@ impl NanoPi
                 AppState::ADB(menu) => {
                     if self.screen_refresh_required
                     {
-                        if let Ok(_) = self.screen.put_string("Launch ADB: \n k1: yes, k3: no")
+                        if let Ok(_) = self.screen.put_string("Launch ADB: k1: yes, k3: no")
                         {
                             self.screen_refresh_required = false;
                         }
@@ -159,7 +161,7 @@ impl NanoPi
                 AppState::Shutdown(menu) => {
                     if self.screen_refresh_required
                     {
-                        if let Ok(_) = self.screen.put_string("Shutdown: \n k1: yes, k3: no")
+                        if let Ok(_) = self.screen.put_string("Shutdown: k1: yes, k3: no")
                         {
                             self.screen_refresh_required = false;
                         }
