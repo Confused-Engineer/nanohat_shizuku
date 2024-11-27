@@ -5,7 +5,7 @@ const K1: u16 = 0;
 const K2: u16 = 2;
 const K3: u16 = 3;
 fn main() {
-    //std::thread::sleep(std::time::Duration::from_secs(5));
+    
     let mut nanopi = NanoPi::new();
     nanopi.start();
 }
@@ -38,6 +38,7 @@ impl NanoPi
 
     fn start(&mut self)
     {
+        std::thread::sleep(std::time::Duration::from_secs(1));
         loop {
             match self.state {
                 AppState::Main(menu) => {
@@ -139,6 +140,8 @@ impl NanoPi
                             },
                             gpio::GpioValue::High => {
                                 self.state = AppState::Main(Menu::Null);
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
                                 debounce();
 
                             },
@@ -191,6 +194,8 @@ impl NanoPi
                             },
                             gpio::GpioValue::High => {
                                 self.state = AppState::Main(Menu::Null);
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
                                 debounce();
 
                             },
