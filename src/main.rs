@@ -1,9 +1,5 @@
-use nanohat_oled::{Oled, OledResult};
-use std::{error::Error, ops::ControlFlow};
-use std::thread;
-use std::time::Duration;
+use gpio::GpioIn;
 
-use gpio::{GpioIn, GpioOut};
 
 const K1: u16 = 0;
 const K2: u16 = 2;
@@ -19,10 +15,10 @@ fn main() {
 struct NanoPi
 {
     state: AppState,
-    k1: std::ops::ControlFlow<(gpio::sysfs::SysFsGpioInput)>,
-    k2: std::ops::ControlFlow<(gpio::sysfs::SysFsGpioInput)>,
-    k3: std::ops::ControlFlow<(gpio::sysfs::SysFsGpioInput)>,
-    screen: nanohat_oled::OledResult<(nanohat_oled::Oled)>,
+    k1: gpio::sysfs::SysFsGpioInput,
+    k2: gpio::sysfs::SysFsGpioInput,
+    k3: gpio::sysfs::SysFsGpioInput,
+    screen: nanohat_oled::Oled,
 }
 
 impl NanoPi
@@ -43,13 +39,140 @@ impl NanoPi
         loop {
             match self.state {
                 AppState::Main(menu) => {
-                    if let std::ops::ControlFlow::Continue(screen) = self.screen
+                    let _ = self.screen.put_string("Start: \n k1: adb, k3: shutdown");
+                    
+                    if let Ok(pushed) = self.k1.read_value()
                     {
-                        
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                self.state = AppState::ADB(Menu::Null);
+                                debounce();
+
+                            },
+                        }
+                    }
+
+                    if let Ok(pushed) = self.k2.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                
+                            },
+                        }
+                    }
+
+                    if let Ok(pushed) = self.k3.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                self.state = AppState::Shutdown(Menu::Null);
+                                debounce();
+
+                            },
+                        }
                     }
                 },
-                AppState::ADB(menu) => todo!(),
-                AppState::Shutdown(menu) => todo!(),
+                AppState::ADB(menu) => {
+                    let _ = self.screen.put_string("Launch adb? \n k1: yes, k3: no");
+
+                    if let Ok(pushed) = self.k1.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                let _ = std::process::Command::new("adb")
+                                .args(["shell", "sh", "/sdcard/Android/data/moe.shizuku.privileged.api/start.sh"])
+                                .spawn();
+                            
+                                debounce();
+
+                            },
+                        }
+                    }
+
+                    if let Ok(pushed) = self.k2.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                
+                            },
+                        }
+                    }
+
+                    if let Ok(pushed) = self.k3.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                self.state = AppState::Main(Menu::Null);
+                                debounce();
+
+                            },
+                        }
+                    }
+                },
+                AppState::Shutdown(menu) => {
+                    let _ = self.screen.put_string("Shutdown? \n k1: yes, k3: no");
+
+                    if let Ok(pushed) = self.k1.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                let _ = std::process::Command::new("shutdown")
+                                .arg("now")
+                                .spawn();
+
+                                debounce();
+
+                            },
+                        }
+                    }
+
+                    if let Ok(pushed) = self.k2.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                
+                            },
+                        }
+                    }
+
+                    if let Ok(pushed) = self.k3.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                self.state = AppState::Main(Menu::Null);
+                                debounce();
+
+                            },
+                        }
+                    }
+                },
             }
         }
     }
@@ -72,16 +195,20 @@ enum Menu
     Null,
 }
 
-fn init_pin(pin: u16) -> std::ops::ControlFlow<(gpio::sysfs::SysFsGpioInput)>
+fn init_pin(pin: u16) -> gpio::sysfs::SysFsGpioInput
 {
-    let init_pin: gpio::sysfs::SysFsGpioInput = gpio::sysfs::SysFsGpioInput::open(pin)?;
-    ControlFlow::Continue(init_pin)
+    gpio::sysfs::SysFsGpioInput::open(pin).unwrap()
+    
 }
 
-fn init_screen() -> nanohat_oled::OledResult<(nanohat_oled::Oled)>
+fn init_screen() -> nanohat_oled::Oled
 {
-    let mut oled = Oled::from_path("/dev/i2c-0")?;
-    oled.init()?;
-    Ok(oled)
+    
+    nanohat_oled::Oled::from_path("/dev/i2c-0").unwrap()
+
 }
 
+fn debounce()
+{
+    std::thread::sleep(std::time::Duration::from_millis(100));
+}
