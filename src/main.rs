@@ -39,6 +39,9 @@ impl NanoPi
     fn start(&mut self)
     {
         std::thread::sleep(std::time::Duration::from_secs(1));
+        let _ = self.screen.clear_display();
+
+
         loop {
             match self.state {
                 AppState::Main(menu) => {
@@ -88,6 +91,8 @@ impl NanoPi
                             },
                             gpio::GpioValue::High => {
                                 self.state = AppState::Shutdown(Menu::Null);
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
                                 debounce();
 
                             },
@@ -103,13 +108,16 @@ impl NanoPi
                         }
                     }
 
-                    if let Ok(pushed) = self.k1.read_value()
+                    if let Ok(mut pushed) = self.k1.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k1.read_value().unwrap();
+                                }
                                 let _ = std::process::Command::new("adb")
                                 .args(["shell", "sh", "/sdcard/Android/data/moe.shizuku.privileged.api/start.sh"])
                                 .spawn();
