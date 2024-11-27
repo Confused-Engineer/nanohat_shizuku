@@ -48,7 +48,7 @@ impl NanoPi
 
                     if self.screen_refresh_required
                     {
-                        if let (Ok(_), Ok(_)) = (self.screen.put_string("Start:"), self.screen.put_string("k1: adb, k3: shutdown"))
+                        if let Ok(_) = self.screen.put_string("Start: k1: adb, k3: shutdown")
                         {
                             self.screen_refresh_required = false;
                         } else {
@@ -57,13 +57,16 @@ impl NanoPi
                     }
                     
                     
-                    if let Ok(pushed) = self.k1.read_value()
+                    if let Ok(mut pushed) = self.k1.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k1.read_value().unwrap();
+                                }
                                 self.state = AppState::ADB(Menu::Null);
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
@@ -85,13 +88,16 @@ impl NanoPi
                         }
                     }
 
-                    if let Ok(pushed) = self.k3.read_value()
+                    if let Ok(mut pushed) = self.k3.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k3.read_value().unwrap();
+                                }
                                 self.state = AppState::Shutdown(Menu::Null);
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
@@ -142,13 +148,16 @@ impl NanoPi
                         }
                     }
 
-                    if let Ok(pushed) = self.k3.read_value()
+                    if let Ok(mut pushed) = self.k3.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k3.read_value().unwrap();
+                                }
                                 self.state = AppState::Main(Menu::Null);
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
@@ -167,13 +176,18 @@ impl NanoPi
                         }
                     }
 
-                    if let Ok(pushed) = self.k1.read_value()
+                    if let Ok(mut pushed) = self.k1.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
+                                let _ = self.screen.clear_display();
+                                let _ = self.screen.put_string("Shutting Down...");
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k1.read_value().unwrap();
+                                }
                                 let _ = std::process::Command::new("shutdown")
                                 .arg("now")
                                 .spawn();
@@ -196,13 +210,16 @@ impl NanoPi
                         }
                     }
 
-                    if let Ok(pushed) = self.k3.read_value()
+                    if let Ok(mut pushed) = self.k3.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k3.read_value().unwrap();
+                                }
                                 self.state = AppState::Main(Menu::Null);
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
