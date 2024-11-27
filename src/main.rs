@@ -19,6 +19,7 @@ struct NanoPi
     k2: gpio::sysfs::SysFsGpioInput,
     k3: gpio::sysfs::SysFsGpioInput,
     screen: nanohat_oled::Oled,
+    screen_refresh_required: bool,
 }
 
 impl NanoPi
@@ -30,7 +31,8 @@ impl NanoPi
             k1: init_pin(K1),
             k2: init_pin(K2),
             k3: init_pin(K3),
-            screen: init_screen()
+            screen: init_screen(),
+            screen_refresh_required: true
         }
     }
 
@@ -39,7 +41,15 @@ impl NanoPi
         loop {
             match self.state {
                 AppState::Main(menu) => {
-                    let _ = self.screen.put_string("Start: \n k1: adb, k3: shutdown");
+
+                    if self.screen_refresh_required
+                    {
+                        if let Ok(_) = self.screen.put_string("Start: \n k1: adb, k3: shutdown")
+                        {
+                            self.screen_refresh_required = false;
+                        }
+                    }
+                    
                     
                     if let Ok(pushed) = self.k1.read_value()
                     {
@@ -82,7 +92,13 @@ impl NanoPi
                     }
                 },
                 AppState::ADB(menu) => {
-                    let _ = self.screen.put_string("Launch adb? \n k1: yes, k3: no");
+                    if self.screen_refresh_required
+                    {
+                        if let Ok(_) = self.screen.put_string("Launch ADB: \n k1: yes, k3: no")
+                        {
+                            self.screen_refresh_required = false;
+                        }
+                    }
 
                     if let Ok(pushed) = self.k1.read_value()
                     {
@@ -128,7 +144,13 @@ impl NanoPi
                     }
                 },
                 AppState::Shutdown(menu) => {
-                    let _ = self.screen.put_string("Shutdown? \n k1: yes, k3: no");
+                    if self.screen_refresh_required
+                    {
+                        if let Ok(_) = self.screen.put_string("Shutdown: \n k1: yes, k3: no")
+                        {
+                            self.screen_refresh_required = false;
+                        }
+                    }
 
                     if let Ok(pushed) = self.k1.read_value()
                     {
@@ -174,7 +196,12 @@ impl NanoPi
                     }
                 },
             }
-            self.screen.clear_display();
+
+            if self.screen_refresh_required
+            {
+                let _ = self.screen.clear_display();
+            }
+            
         }
 
         
