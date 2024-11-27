@@ -59,6 +59,8 @@ impl NanoPi
                             },
                             gpio::GpioValue::High => {
                                 self.state = AppState::ADB(Menu::Null);
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
                                 debounce();
 
                             },
@@ -197,10 +199,7 @@ impl NanoPi
                 },
             }
 
-            if self.screen_refresh_required
-            {
-                let _ = self.screen.clear_display();
-            }
+            
             
         }
 
