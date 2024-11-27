@@ -175,6 +175,8 @@ impl NanoPi
                 },
             }
         }
+
+        self.screen.clear_display();
     }
 }
 
