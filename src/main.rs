@@ -40,7 +40,11 @@ impl NanoPi
     {
         std::thread::sleep(std::time::Duration::from_secs(1));
         let _ = self.screen.clear_display();
-
+        
+        if let Err(image) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 0)
+        {
+            eprint!("{}", image)
+        }
 
         loop {
             match self.state {
