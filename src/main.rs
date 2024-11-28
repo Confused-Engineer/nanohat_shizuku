@@ -46,6 +46,7 @@ impl NanoPi
         
         if let Err(image) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 100)
         {
+            println!("Len: {}", include_bytes!("../assets/screen_main.bmp").len().to_string());
             eprint!("{}", image)
         }
 
