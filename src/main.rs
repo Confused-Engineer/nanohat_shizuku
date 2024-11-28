@@ -42,7 +42,7 @@ impl NanoPi
         std::thread::sleep(std::time::Duration::from_secs(1));
         let _ = self.screen.clear_display();
         
-        if let Err(image) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 1)
+        if let Err(image) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 120)
         {
             eprintln!("{}", image)
         }
@@ -283,6 +283,8 @@ fn debounce()
 
 #[cfg(test)]
 mod tests {
+    use std::io::Read;
+
     use crate::init_screen;
 
     
@@ -290,9 +292,10 @@ mod tests {
     #[test]
     fn image_len() {
 
-        println!("Image Length is: {}", include_bytes!("../assets/screen_main.bmp").len().to_string());
+        println!("Image Length is: {}", include_bytes!("../assets/screen_main.bmp").len());
         println!("Needs to be: {}", (128*64))
 
     }
 
 }
+
