@@ -79,14 +79,21 @@ impl NanoPi
                         }
                     }
 
-                    if let Ok(pushed) = self.k2.read_value()
+                    if let Ok(mut pushed) = self.k2.read_value()
                     {
                         match pushed {
                             gpio::GpioValue::Low => {
                                 
                             },
                             gpio::GpioValue::High => {
-                                
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k2.read_value().unwrap();
+                                }
+                                self.state = AppState::Info;
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
+                                debounce();
+
                             },
                         }
                     }
