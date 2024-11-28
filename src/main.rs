@@ -1,4 +1,5 @@
 use gpio::GpioIn;
+use nanohat_oled::AddressingMode;
 
 
 const K1: u16 = 0;
@@ -40,6 +41,8 @@ impl NanoPi
     {
         std::thread::sleep(std::time::Duration::from_secs(1));
         let _ = self.screen.clear_display();
+        
+        
         
         if let Err(image) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 100)
         {
