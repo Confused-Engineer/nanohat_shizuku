@@ -1,4 +1,5 @@
 use gpio::GpioIn;
+use local_ip_address::linux::local_ip;
 use nanohat_oled::AddressingMode;
 
 
@@ -28,7 +29,7 @@ impl NanoPi
     fn new() -> Self
     {
         Self {
-            state: AppState::Main(Menu::Null),
+            state: AppState::Main,
             k1: init_pin(K1),
             k2: init_pin(K2),
             k3: init_pin(K3),
@@ -45,7 +46,7 @@ impl NanoPi
 
         loop {
             match self.state {
-                AppState::Main(menu) => {
+                AppState::Main => {
 
                     if self.screen_refresh_required
                     {
@@ -69,7 +70,7 @@ impl NanoPi
                                 while pushed == gpio::GpioValue::High {
                                     pushed = self.k1.read_value().unwrap();
                                 }
-                                self.state = AppState::ADB(Menu::Null);
+                                self.state = AppState::ADB;
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
                                 debounce();
@@ -100,7 +101,7 @@ impl NanoPi
                                 while pushed == gpio::GpioValue::High {
                                     pushed = self.k3.read_value().unwrap();
                                 }
-                                self.state = AppState::Shutdown(Menu::Null);
+                                self.state = AppState::Shutdown;
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
                                 debounce();
@@ -109,7 +110,7 @@ impl NanoPi
                         }
                     }
                 },
-                AppState::ADB(menu) => {
+                AppState::ADB => {
                     if self.screen_refresh_required
                     {
                         if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_adb.raw"), 1)
@@ -160,7 +161,7 @@ impl NanoPi
                                 while pushed == gpio::GpioValue::High {
                                     pushed = self.k3.read_value().unwrap();
                                 }
-                                self.state = AppState::Main(Menu::Null);
+                                self.state = AppState::Main;
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
                                 debounce();
@@ -169,7 +170,7 @@ impl NanoPi
                         }
                     }
                 },
-                AppState::Shutdown(menu) => {
+                AppState::Shutdown => {
                     if self.screen_refresh_required
                     {
                         if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_shutdown.raw"), 1)
@@ -222,7 +223,82 @@ impl NanoPi
                                 while pushed == gpio::GpioValue::High {
                                     pushed = self.k3.read_value().unwrap();
                                 }
-                                self.state = AppState::Main(Menu::Null);
+                                self.state = AppState::Main;
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
+                                debounce();
+
+                            },
+                        }
+                    }
+                },
+                AppState::Info => {
+                    if self.screen_refresh_required
+                    {
+
+                        if let Ok(ipv4) = local_ip()
+                        {
+                            if let Ok(_) = self.screen.put_string(&ipv4.to_string())
+                            {
+                                self.screen_refresh_required = false;
+                            } else {
+                                let _ = self.screen.clear_display();
+                            }
+                        }
+                        //if let Ok(_) = self.screen.put_string("Start: k1: adb, k3: shutdown")
+                        
+                    }
+                    
+                    
+                    if let Ok(mut pushed) = self.k1.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k1.read_value().unwrap();
+                                }
+                                self.state = AppState::Main;
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
+                                debounce();
+
+                            },
+                        }
+                    }
+
+                    if let Ok(mut pushed) = self.k2.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k2.read_value().unwrap();
+                                }
+                                self.state = AppState::Main;
+                                self.screen_refresh_required = true;
+                                let _ = self.screen.clear_display();
+                                debounce();
+
+                            },
+                        }
+                    }
+
+                    if let Ok(mut pushed) = self.k3.read_value()
+                    {
+                        match pushed {
+                            gpio::GpioValue::Low => {
+                                
+                            },
+                            gpio::GpioValue::High => {
+                                while pushed == gpio::GpioValue::High {
+                                    pushed = self.k3.read_value().unwrap();
+                                }
+                                self.state = AppState::Main;
                                 self.screen_refresh_required = true;
                                 let _ = self.screen.clear_display();
                                 debounce();
@@ -245,18 +321,12 @@ impl NanoPi
 #[derive(PartialEq, Clone, Copy)]
 enum AppState
 {
-    Main(Menu),
-    ADB(Menu),
-    Shutdown(Menu),
+    Main,
+    ADB,
+    Info,
+    Shutdown,
 }
 
-#[derive(PartialEq, Clone, Copy)]
-enum Menu
-{
-    Yes,
-    No,
-    Null,
-}
 
 fn init_pin(pin: u16) -> gpio::sysfs::SysFsGpioInput
 {
@@ -291,6 +361,15 @@ mod tests {
         println!("Image Length is: {}", include_bytes!("../assets/screen_main.raw").len());
         
         println!("Needs to be: {}", (128*64))
+
+    }
+
+    #[test]
+    fn print_ip() {
+
+        
+        
+        
 
     }
 
