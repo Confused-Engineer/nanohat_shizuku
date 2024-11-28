@@ -42,13 +42,7 @@ impl NanoPi
         std::thread::sleep(std::time::Duration::from_secs(1));
         let _ = self.screen.clear_display();
         
-        
-        
-        if let Err(image) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 100)
-        {
-            println!("Len: {}", include_bytes!("../assets/screen_main.bmp").len().to_string());
-            eprint!("{}", image)
-        }
+
 
         loop {
             match self.state {
@@ -281,4 +275,21 @@ fn init_screen() -> nanohat_oled::Oled
 fn debounce()
 {
     //std::thread::sleep(std::time::Duration::from_millis(100));
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::init_screen;
+
+    
+
+    #[test]
+    fn image_len() {
+
+        println!("Image Length is: {}", include_bytes!("../assets/screen_main.bmp").len().to_string());
+        println!("Needs to be: {}", (128*64))
+
+    }
+
 }
