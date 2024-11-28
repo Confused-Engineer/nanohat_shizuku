@@ -49,7 +49,7 @@ impl NanoPi
                     if self.screen_refresh_required
                     {
                         //if let Ok(_) = self.screen.put_string("Start: k1: adb, k3: shutdown")
-                        if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 100)
+                        if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_main.bmp"), 0)
                         {
                             self.screen_refresh_required = false;
                         } else {
