@@ -112,7 +112,7 @@ impl NanoPi
                 AppState::ADB(menu) => {
                     if self.screen_refresh_required
                     {
-                        if let Ok(_) = self.screen.put_string("Launch ADB: k1: yes, k3: no")
+                        if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_adb.raw"), 1)
                         {
                             self.screen_refresh_required = false;
                         }
@@ -172,7 +172,7 @@ impl NanoPi
                 AppState::Shutdown(menu) => {
                     if self.screen_refresh_required
                     {
-                        if let Ok(_) = self.screen.put_string("Shutdown: k1: yes, k3: no")
+                        if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_shutdown.raw"), 1)
                         {
                             self.screen_refresh_required = false;
                         }
