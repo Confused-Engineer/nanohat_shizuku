@@ -1,6 +1,5 @@
 use gpio::GpioIn;
 use local_ip_address::linux::local_ip;
-use nanohat_oled::AddressingMode;
 
 
 const K1: u16 = 0;
@@ -358,9 +357,7 @@ fn debounce()
 
 #[cfg(test)]
 mod tests {
-    use std::io::Read;
 
-    use crate::init_screen;
 
     
 
