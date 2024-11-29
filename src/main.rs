@@ -40,8 +40,10 @@ impl NanoPi
 
     fn start(&mut self)
     {
+        let _ = self.screen.init();
         std::thread::sleep(std::time::Duration::from_secs(1));
         let _ = self.screen.clear_display();
+        
         
 
         loop {
