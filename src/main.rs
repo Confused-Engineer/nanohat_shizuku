@@ -39,19 +39,26 @@ impl NanoPi
 
     fn start(&mut self)
     {
+        let _ = self.screen.init();
+
+        let _ = self.screen.clear_display();
+
         if let Err(_) = std::process::Command::new("adb").spawn()
         {
+            let _ = self.screen.put_string("adb not found... attempting to install");
             let _ = std::process::Command::new("apt").arg("update").output();
             let _ = std::process::Command::new("apt").args(["install","-y","adb"]).output();
-
-
+            std::thread::sleep(std::time::Duration::from_millis(100));
+            if let Err(_) = std::process::Command::new("adb").spawn()
+            {
+                let _ = self.screen.put_string("adb failed to install. Shutting down.");
+                let _ = std::process::Command::new("shutdown")
+                    .arg("now")
+                    .spawn();
+                
+            }
         }
-        
-        let _ = self.screen.init();
-        std::thread::sleep(std::time::Duration::from_secs(1));
-        let _ = self.screen.clear_display();
-        
-        
+
 
         loop {
             match self.state {
@@ -59,7 +66,7 @@ impl NanoPi
 
                     if self.screen_refresh_required
                     {
-                        //if let Ok(_) = self.screen.put_string("Start: k1: adb, k3: shutdown")
+                        
                         if let Ok(_) = self.screen.draw_image(include_bytes!("../assets/screen_main.raw"), 1)
                         {
                             self.screen_refresh_required = false;
