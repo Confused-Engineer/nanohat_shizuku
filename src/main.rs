@@ -39,6 +39,14 @@ impl NanoPi
 
     fn start(&mut self)
     {
+        if let Err(_) = std::process::Command::new("adb").spawn()
+        {
+            let _ = std::process::Command::new("apt").arg("update").output();
+            let _ = std::process::Command::new("apt").args(["install","-y","adb"]).output();
+
+
+        }
+        
         let _ = self.screen.init();
         std::thread::sleep(std::time::Duration::from_secs(1));
         let _ = self.screen.clear_display();
@@ -373,7 +381,13 @@ mod tests {
     #[test]
     fn print_ip() {
 
-        
+        if let Err(_) = std::process::Command::new("adb").spawn()
+        {
+            let _ = std::process::Command::new("apt").arg("update").output();
+            let _ = std::process::Command::new("apt").args(["install","-y","adb"]).output();
+
+
+        }
         
         
 
