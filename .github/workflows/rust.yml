@@ -1,0 +1,48 @@
+on: [push]
+
+name: Rust-Release-Nightly
+
+jobs:
+
+  build_linux_bin:
+    name: Rust Build Linux AppImage
+    runs-on: linux, ARM64, self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: build
+        run: |
+          /home/pi/.cargo/bin/cargo --release
+
+      - name: Temporarily Save File
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bin
+          path: ./target/release/nanohat_shizuku
+          retention-days: 1
+      - name: cleanup
+        run: |
+          /home/pi/.cargo/bin/cargo clean
+
+  publish_release:
+    name: Publish Files
+    runs-on: linux
+    needs: ["build_linux_bin"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Get Files
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+          merge-multiple: true
+
+      - uses: "ModeSevenIndustrialSolutions/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "nightly"
+          prerelease: true
+          title: "Dev Build"
+          files: |
+            ./artifacts/nanohat_shizuku
