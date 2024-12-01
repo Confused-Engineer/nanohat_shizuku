@@ -5,8 +5,8 @@ name: Rust-Release-Nightly
 jobs:
 
   build_linux_bin:
-    name: Rust Build Linux AppImage
-    runs-on: linux, ARM64, self-hosted
+    name: Rust Build Linux Bin
+    runs-on: linux
     steps:
       - uses: actions/checkout@v4
 
