@@ -12,7 +12,7 @@ jobs:
 
       - name: build
         run: |
-          /home/pi/.cargo/bin/cargo --release
+          /home/pi/.cargo/bin/cargo build --release
 
       - name: Temporarily Save File
         uses: actions/upload-artifact@v4
