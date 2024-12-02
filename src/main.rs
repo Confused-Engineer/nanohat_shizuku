@@ -40,23 +40,28 @@ impl NanoPi
     fn start(&mut self)
     {
         let _ = self.screen.init();
-
+        std::thread::sleep(std::time::Duration::from_millis(100));
         let _ = self.screen.clear_display();
 
-        if let Err(_) = std::process::Command::new("adb").spawn()
+        if let (Err(_), Err(_)) = (std::process::Command::new("adb").spawn(), local_ip())
         {
-            let _ = self.screen.put_string("adb not found... attempting to install");
+            let _ = self.screen.put_string("adb not found and no connection to internet. Shutting down.");
+            let _ = std::process::Command::new("shutdown")
+                    .arg("now")
+                    .spawn();
+
+
+            
+            std::thread::sleep(std::time::Duration::from_millis(100));
+            
+        } 
+
+        if let (Err(_), Ok(_)) = (std::process::Command::new("adb").spawn(), local_ip())
+        {
+            let _ = self.screen.put_string("adb not found. Attempting Install.");
             let _ = std::process::Command::new("apt").arg("update").output();
             let _ = std::process::Command::new("apt").args(["install","-y","adb"]).output();
             std::thread::sleep(std::time::Duration::from_millis(100));
-            if let Err(_) = std::process::Command::new("adb").spawn()
-            {
-                let _ = self.screen.put_string("adb failed to install. Shutting down.");
-                let _ = std::process::Command::new("shutdown")
-                    .arg("now")
-                    .spawn();
-                
-            }
         }
 
 
