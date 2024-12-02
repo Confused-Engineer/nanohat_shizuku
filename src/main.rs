@@ -39,16 +39,19 @@ impl NanoPi
 
     fn start(&mut self)
     {
-        let _ = self.screen.init();
+        while let Err(_) = self.screen.init()
+        {
+            let _ = self.screen.init();
+        }
         std::thread::sleep(std::time::Duration::from_millis(100));
         let _ = self.screen.clear_display();
 
+        
 
         if let (Err(_), Ok(ip)) = (std::process::Command::new("adb").spawn(), local_ip())
         {
             let _ = self.screen.put_string(&format!("IP: {}. Installing ADB", ip));
-            let _ = std::process::Command::new("apt").arg("update").output();
-            let _ = std::process::Command::new("apt").args(["install","-y","adb"]).output();
+            let _ = std::process::Command::new("apt").args(["update", ";", "apt", "install", "-y", "adb"]).spawn();
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
 
