@@ -40,10 +40,15 @@ impl NanoPi
     fn start(&mut self)
     {
         
-        let _ = self.screen.init();
-        
+        while let Err(_) = self.screen.init()
+        {
+            let _ = self.screen.init();
+        }
+
         std::thread::sleep(std::time::Duration::from_millis(100));
         let _ = self.screen.clear_display();
+
+        let _ = self.screen.put_string("Starting");
 
         
 
@@ -56,6 +61,7 @@ impl NanoPi
         }
 
 
+        let _ = self.screen.clear_display();
         loop {
             match self.state {
                 AppState::Main => {
